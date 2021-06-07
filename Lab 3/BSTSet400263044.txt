@@ -1,0 +1,411 @@
+import java.util.Arrays;
+
+public class BSTSet {
+	private TNode root;
+	
+	//First constructor creates an empty Binary Search Tree
+	public BSTSet() {
+        root = null;
+    }
+	
+	//The minimum height of the binary search tree is log2[n] + 1
+	//To achieve the minimum height the input array must be sorted and the repetitions must be removed
+	//The middle of the array is the root of the binary search tree
+	//By doing this the number of elements in left and right half would be same creating a balanced tree
+	
+	//TIME COMPLEXITY:  Θ(n log(n)) in the average case  due to Array.sort    
+	//SPACE COMPLEXITY: O(log(n)) due to Arrays.sort
+	public BSTSet (int [] input) {
+		if(input.length==0 || input==null) {
+			root = null;
+			return;
+		}
+		
+		Arrays.sort(input); //sorting the array
+		
+		int len = input.length;
+		int[]temp_arr = new int[len];
+		int pos =0;  //removing the duplicates
+		for(int i=0; i<len-1; i++) {
+			if(input[i]!=input[i+1]) {
+				temp_arr[pos++] = input[i];
+			}
+		}
+		temp_arr[pos++] = input[len-1];
+		int[]input_1 = new int[pos];
+		
+		for(int i=0;i<pos;i++) {
+			input_1[i] = temp_arr[i];
+		}
+		
+		int mid=input_1.length/2;  //The index mid takes into account both even and odd length cases
+		if(input_1.length%2==0) {
+			mid = (input_1.length/2)-1;
+		}
+		
+		root = new TNode(input_1[mid], null,null); //Creates a new TNode named root
+		LeftChild(root, Arrays.copyOfRange(input_1, 0, mid)); //The left children are added recursively to the left side of root
+        RightChild(root, Arrays.copyOfRange(input_1, mid + 1, input_1.length)); //The right children are added recursively to the left side of root
+		
+	}
+	
+	//Recursively adds all elements to the left side of the binary Search tree
+	//TIME COMPLEXITY:  O(n)    
+	//SPACE COMPLEXITY: O(n) go through all nodes
+	private void LeftChild(TNode temp_1, int[] left_arr) { //LeftChild of the root
+        if (left_arr.length == 0) {
+            return;
+        }
+        int mid = left_arr.length / 2;     //The index mid takes into account both even and odd length cases
+        if(left_arr.length%2==0) {
+        	mid = (left_arr.length/2)-1;
+        }
+        temp_1.left = new TNode(left_arr[mid], null, null); //Creates a left child node
+        LeftChild(temp_1.left, Arrays.copyOfRange(left_arr, 0, mid)); //LeftChild of the root's leftChildren
+        RightChild(temp_1.left, Arrays.copyOfRange(left_arr, mid + 1, left_arr.length)); //RightChild of the root's rightChildren
+    }
+
+	//TIME COMPLEXITY:  O(n)   -n/2  
+    //SPACE COMPLEXITY: O(n) go through all nodes
+    private void RightChild(TNode temp_2, int[] right_arr) { 
+        if (right_arr.length == 0) {
+            return;
+        }
+        int mid = right_arr.length / 2;    //The index mid takes into account both even and odd length cases
+        if(right_arr.length%2==0) {
+        	mid = (right_arr.length/2)-1;
+        }
+        temp_2.right = new TNode(right_arr[mid], null, null);   //Creates a right child node
+        LeftChild(temp_2.right, Arrays.copyOfRange(right_arr, 0, mid)); //LeftChild of the root's rightChildren
+        RightChild(temp_2.right, Arrays.copyOfRange(right_arr, mid + 1, right_arr.length)); //RightChild of the root's rightChildren
+    }
+	
+    //TIME COMPLEXITY:  O(1)  
+    //SPACE COMPLEXITY: O(1) 
+	public TNode getRoot()//returns the root of the binary search tree
+    {
+    	return root;
+    }
+	
+	//TIME COMPLEXITY:  O(h) = O(logn)  due to minimum height - average case, O(n) - worst case -need to visit all the elements
+    //SPACE COMPLEXITY: O(1) because only one node dummy is created
+	public boolean isIn(int v){//Checks if an element is in BST
+		if(root==null) {   //If the root is null returns false
+			return false;
+		}
+		if(root.element==v) { //Checks whether the root element is v and returns true if it is
+			return true;
+		}
+		TNode dummy = root;   //Creating a TNode named dummy and giving it the root reference
+		
+		while(dummy!=null) {   //Checking the nodes to find the element
+			if(dummy.element==v) { //If the element is found returning true
+				return true;
+			}
+			dummy= dummy.element<v?dummy.right:dummy.left; //If the v>root's element going towards right of the tree else left
+		}
+		return false;  //if the element is not there in BST returning false
+	}
+	
+	//TIME COMPLEXITY:  O(h) = O(logn)  due to minimum height - average case, O(n) - worst case -need to visit all the elements
+    //SPACE COMPLEXITY: O(1) because only one node is created in each of the cases
+	public void add(int v) {
+		// if the tree is empty, creating a new node and set it as root
+		if(root==null) {
+			root = new TNode(v,null,null);
+		}
+		//check if the value is not in the tree
+		if(this.isIn(v)==false) {
+			TNode temp_curr = root; //Creating a node and giving it the root reference
+			TNode parent = null; //Creating another node to store the parent
+			
+			// traverse the tree and find the parent node of the given key
+			while(temp_curr!=null) { 
+				parent = temp_curr;    // updating the parent to the current node
+				// if the given key is less than the current node, go to the
+		        // left subtree; otherwise, go to the right subtree.
+				temp_curr = temp_curr.element<v?temp_curr.right:temp_curr.left;
+			}
+			 // constructing a node and assigning it to the appropriate side by comparing the given key with the parent
+			if(v<parent.element) {
+				parent.left = new TNode(v,null,null);
+			}
+			else {
+				parent.right = new TNode(v,null,null);
+			}
+		}			
+	}
+	
+	//TIME COMPLEXITY:  O(h) = O(logn)  due to minimum height - average case, O(n) - worst case -need to visit all the elements
+    //SPACE COMPLEXITY: O(h) = O(logn) maximum amount of memory that could be present in the stack in any situation
+	public boolean remove(int v) {
+		if(this.isIn(v)==false) { //If the element is not in tree returning false
+			return false;
+		}
+		else {
+			root = remove_node(root,v);  
+			return true; 
+		}
+		
+	}
+	
+	public TNode remove_node(TNode root, int val)
+    {
+        // Base Case: Tree is empty return null node
+        if (root == null)
+            return root;
+ 
+        if (val < root.element) //Recurring down the left side of BST
+            root.left = remove_node(root.left, val);
+        else if (val > root.element) //Recurring down the right side of BST
+            root.right = remove_node(root.right, val);
+ 
+       
+        else {
+            // node with only one child or no child
+            if (root.left == null) //If left child is null then right child is returned
+                return root.right;
+            else if (root.right == null) //If right child is null then left child is returned
+                return root.left;
+ 
+            // node with two children
+            // Getting the minimum value from the right subtree
+            root.element = min_Val(root.right);
+ 
+            // Delete the the element with minimum value from the right side
+            root.right = remove_node(root.right, root.element);
+        }
+        return root;
+    }
+	
+	//TIME COMPLEXITY:  O(h) = O(logn)  due to minimum height 
+    //SPACE COMPLEXITY: O(1) because only one variable minval is creates
+    int min_Val(TNode root)//Computing the minimum value on the right side of BST
+    {
+        int minval = root.element;
+        while (root.left != null){    //Going down to the left leave of the BST on the right side
+        	if(minval<root.left.element) {  //Checking if the current element is less than minval
+        		minval = root.left.element;
+        	}
+            root = root.left; //Going to the left side
+        }
+        return minval;
+    }
+    
+    //To achieve minimum an array is created with all the elements from two sets
+    //TIME COMPLEXITY:  O(n), where n = size of this BST + size of s BST
+    //SPACE COMPLEXITY: O(n), n = size of this BST + size of s BST, due to the array allocation
+	public BSTSet union(BSTSet s) { 
+		if(root==null) {
+			return s;
+		}
+		
+		if(s.getRoot()==null) {
+			return this;
+		}
+		
+		String join_str = this.BSTSet_str(root)+s.BSTSet_str(s.getRoot());
+		String[] join_str_arr = join_str.split(" "); 
+		
+		
+		int union_arr[] = new int[join_str_arr.length];
+		for(int i=0;i<join_str_arr.length;i++) {
+			union_arr[i] = Integer.parseInt(join_str_arr[i]);
+		}
+		
+		BSTSet  join = new BSTSet(union_arr);
+		
+		return join;
+	}
+	
+	//To achieve intersection with minimum height an array is created that contains all the common elements 
+	//TIME COMPLEXITY:  O(n*y), where n = size of this BST, y = size of s BST
+    //SPACE COMPLEXITY: O(n+y), n = size of this BST, y = size of s BST, due to the array allocation
+	public BSTSet intersection(BSTSet s) {  
+		if (root == null || s.root == null) {
+            return new BSTSet();
+        }
+		String Set1 = this.BSTSet_str(root);
+		String[] Set1_arr = Set1.split(" ");
+		
+		String Set2 = this.BSTSet_str(s.getRoot());
+		String[] Set2_arr = Set2.split(" "); 
+		
+		String temp = "";
+		
+		for(int i=0; i<Set1_arr.length; i++) {
+			for(int j=0; j<Set2_arr.length; j++) {
+				if(Integer.parseInt(Set1_arr[i])==Integer.parseInt(Set2_arr[j])) {
+					temp+= Set2_arr[j] + " ";
+				}
+			}
+		}
+		
+		if(temp=="") {  //No common elements empty set is returned
+			return new BSTSet();
+		}
+		
+		String[] temp_array = temp.split(" ");
+		int intersect_arr[] = new int[temp_array.length];
+		for(int i=0;i<temp_array.length;i++) {
+			intersect_arr[i] = Integer.parseInt(temp_array[i]);
+		}
+		
+		BSTSet common = new BSTSet(intersect_arr);
+		return common;
+	}
+	
+	//For difference an array is created to store all the different elements in both sets
+	//TIME COMPLEXITY:  O(n*y), where n = size of this BST, y = size of s BST
+    //SPACE COMPLEXITY: O(n+y), n = size of this BST, y = size of s BST, due to the array allocation
+	public BSTSet difference(BSTSet s) { 
+		if(root==null) {
+			return s;
+		}
+		
+		if(s.getRoot()==null) {
+			return this;
+		}
+	
+		String Set1 = this.BSTSet_str(root);
+		String[] Set1_arr = Set1.split(" ");
+		
+		
+		String Set2 = this.BSTSet_str(s.getRoot());
+		String[] Set2_arr = Set2.split(" "); 
+		
+		String temp = "";
+		
+		for(int i=0; i<Set1_arr.length; i++) {
+			int check = 0;
+			for(int j=0; j<Set2_arr.length; j++) {
+				if(Integer.parseInt(Set1_arr[i])==Integer.parseInt(Set2_arr[j])) {
+					check = 1;
+				}
+			}
+			if(check==0) {
+				temp+= Set1_arr[i] + " ";
+			}
+		}
+		
+		if(temp=="") {  //All elements are same-empty set is returned
+			return new BSTSet();
+		}
+		
+		String[] temp_array = temp.split(" ");
+		int nocom_arr[] = new int[temp_array.length];
+		for(int i=0;i<temp_array.length;i++) {
+			nocom_arr[i] = Integer.parseInt(temp_array[i]);
+		}
+		
+		BSTSet not_common = new BSTSet(nocom_arr);
+		return not_common;
+	}
+	
+	//Returns the size of the BST 
+	//TIME COMPLEXITY:  O(n), need to go through all nodes
+    //SPACE COMPLEXITY: O(log n), because O(h) - maximum amount of memory any time
+	public int size() { 
+		return findsize(this.root);
+	}
+	
+	//Recursively finds the size of the BST
+	public int findsize(TNode root) {
+		  if (root == null) return 0;
+		  return 1 + findsize(root.left) + findsize(root.right); 
+	}
+	
+	//Returns the height of the BST
+	//TIME COMPLEXITY:  O(n), need to go through all nodes
+    //SPACE COMPLEXITY: O(log n), because O(h) - maximum amount of memory any time
+	public int height() {
+		return findHeight(this.root); 
+	}
+	
+	public int findHeight(TNode root) {
+		  if (root == null) return -1;
+		 //The max height is taken after the heights of the two subtrees are computed recursively
+		  return 1 + Math.max(findHeight(root.left), findHeight(root.right)); 
+	}
+	
+	public void printBSTSet(){
+		if(root==null) {
+			System.out.println("The set is empty");
+		}
+		else{
+			System.out.print("The set elements are: ");
+			printBSTSet(root);
+			System.out.print("\n");
+		}
+	}
+	
+	private void printBSTSet(TNode t) {
+		if(t!=null) {
+			printBSTSet(t.left);
+			System.out.print(" " + t.element + ", ");
+			printBSTSet(t.right);
+		}
+	}
+	
+	public String BSTSet_str(TNode t) {
+		String Set_str = "";
+		if(t!=null) {
+			Set_str+= BSTSet_str(t.left);
+			Set_str += t.element + " ";
+			Set_str+= BSTSet_str(t.right);
+		}
+		return Set_str;
+	}
+	
+	//Prints the BST in iterative way
+	//TIME COMPLEXITY:  O(n), need to go through all nodes
+    //SPACE COMPLEXITY: O(log n), because O(h) - maximum amount of memory any time
+	public void printNonRec() { 
+		if(this.getRoot()==null) {
+			System.out.println("The set is empty");
+			return;
+		}
+		
+		MyStack <TNode> in_order = new MyStack<>();
+		TNode head = root;
+		
+		System.out.print("The set elements are: ");
+		while(head!=null || in_order.isEmpty()==false) { //while the head is not null and stack is not empty
+			while(head!=null) {
+				in_order.push(head); //Pushes the head into the stack
+				head = head.left; //Head goes the left most leaf 
+			}
+			
+			head = in_order.pop(); //Pops the left elements starting from leaf and ending at the root until stack is empty
+			System.out.print(head.element + ", ");
+			head=head.right;  //Then adding right elements to the stack and popping them off after reaching the right most leaf
+		}
+		System.out.println();
+	}
+	
+	//TIME COMPLEXITY:  O(n), need to go through all nodes
+    //SPACE COMPLEXITY: O(n), going to store all the nodes -(n+1/2^h) - nodes
+	public void printLevelOrder() {
+		if(this.getRoot()==null) {  //If the root is empty
+			System.out.print("The set is empty"); //Stack is empty
+			return;
+		}
+		
+		System.out.print("The set elements are: ");
+		if(this.getRoot()!=null) {
+			TNode head = this.getRoot();
+			MyQueue<TNode> q = new MyQueue<TNode>(); //Creating a TNode queue
+	        q.enqueue(this.getRoot()); //Appending the root to the queue
+	        
+	        while(!q.isEmpty()) {
+	        	head = q.dequeue(); //Dequeue the queue
+	        	System.out.print(head.element+ ", "); //Printing the elements until queue is empty
+	        	if(head.left!=null)   //Enqueue the left nodes until it's left child is null
+	        		q.enqueue(head.left);
+	        	
+	        	if(head.right!=null)  //Enqueue the right nodes until it's right child is null
+	        		q.enqueue(head.right);
+	        }
+		}
+	}    
+}

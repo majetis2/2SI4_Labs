@@ -1,0 +1,36 @@
+import java.util.NoSuchElementException;
+
+public class MyQueue <E>{
+	int front, rear;
+	TNode temp; 
+	TNode[] q;
+	
+    public MyQueue() { 
+    	q = new TNode[50];
+        front = rear = 0; 
+    } 
+    
+    public boolean isEmpty() {
+        return front == rear;
+    }
+  
+    // Method to add an key to the queue. 
+    public void enqueue(TNode key) {
+    	q[rear] = key;
+    	rear++;
+    } 
+  
+    // Method to remove an key from queue. 
+    public TNode dequeue() throws NoSuchElementException { 
+        if(isEmpty()) {
+        	throw new NoSuchElementException("Queue underflow");
+        }
+        
+        else{
+        	temp = q[front];
+        	q[front] = null;
+        	front++;
+    		return temp;
+        }
+    }
+}

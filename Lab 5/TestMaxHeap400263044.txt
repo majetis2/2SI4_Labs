@@ -1,0 +1,37 @@
+import java.util.Arrays;
+
+public class TestMaxHeap {
+	public static void main(String[] args) {
+		Integer test[] = { 1,2,8,7,56,67,98}; 
+	    
+		System.out.println("----TEST CONSTRUCTORS----");
+		
+	    MaxHeap heap = new MaxHeap(7);
+	    MaxHeap h2 = new MaxHeap(test);
+
+	    System.out.println("Empty Heap: "+ heap.toString());
+
+	    System.out.println("Insert 0-7");
+	    for (int num = 0; num < 7; num++)
+	    {
+	        heap.insert(num);
+	    }
+	    System.out.println("Heap after: "+ heap.toString());
+	    System.out.println("Number of elements: "+ heap.getSizeHeap());
+	    
+	    System.out.println("----TEST INSERT----");
+	    heap.insert(19);
+	    System.out.println(heap.toString());
+	    System.out.println("New array size after resizing: "+ heap.getSizeArr());
+	    System.out.println("Number of elements after resizing and inserting: "+ heap.getSizeHeap());
+
+	    System.out.println(h2.toString());
+
+	    Integer[] t = new Integer[] {23,-794,223,291,-43,78483,690,-63};
+	    MaxHeap heap_test = new MaxHeap(t);
+	    System.out.println("----TEST HEAP SORT-----");
+	    System.out.println("Before sorting: " + Arrays.toString(t));
+	    heap_test.heapsort(t);
+	    System.out.println("After sorting: " + Arrays.toString(t));
+	}
+}

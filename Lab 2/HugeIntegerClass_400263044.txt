@@ -1,0 +1,654 @@
+import java.util.Arrays;
+
+public class HugeInteger {
+	private int sign_int; 
+	private int[] digits_int;
+	
+	public HugeInteger(String val) throws IllegalArgumentException, NullPointerException{
+		
+		//PART I - ERROR HANDLING AND EXCEPTIONS
+		
+		//Null pointer exception
+		if(val.length()==0 || val==null) {    //Checking if string is null
+			throw new NullPointerException ("The string val cannot be null");
+		}
+		
+		//Creating char arrays to check if the inputs are valid
+		String valid_str = "0123456789";   //Character array to check for valid characters
+		char[] valid  = valid_str.toCharArray();
+		char[] valc = val.toCharArray();
+		
+		//Checking if the number is negative or positive
+		int ind = 0; 
+		
+		if(valc[0]=='-' && valc.length==1) {   //checking the valc length and invalid sign
+			throw new IllegalArgumentException("The string has to contain numbers");
+		}
+		
+		if(valc[0]=='-' && valc.length>1) {   //if there is a sign and number
+			ind = 1;
+		}
+		
+		//Checking for invalid inputs -> two for loops an matching the characters
+		for (int i=ind;i<valc.length;i++) {
+			int check = 0;
+			for(int j=0; j<valid.length;j++) {
+				if(valc[i]==valid[j]) {
+					check = 1;
+				}
+			}
+			
+			if(check==0){
+				throw new IllegalArgumentException("Illegal Arguments");
+			}
+		}
+			
+		//PART II - sign_int ASSIGNMNET
+		
+		//Takes the sign of the HugeInteger: 1,-1,0
+		
+		sign_int = -1;
+		
+		if(valc[0]!='-') {
+			sign_int = 1;
+		}
+		
+		if(valc.length==1 && valc[0]=='0') {
+			sign_int = 0;
+			digits_int = new int[1];
+			digits_int[0] = 0;
+		}
+		
+		int num_zero = 0;   //checks the number of zeros
+		
+		for(int i=ind; i<valc.length; i++) {
+			if(valc[i]=='0') {
+				num_zero++;
+			}
+		}
+		
+		int all_zero=0; //Checks if all the digits in the string are zero
+		
+		if(num_zero==valc.length || valc[0]=='-' && num_zero==valc.length-1) {
+			all_zero=1;
+			sign_int = 0;
+			digits_int = new int[1];
+			digits_int[0] = 0;
+			
+		}
+	
+		//PART III - LOADING DIGITS INTO digits_int
+		
+		//Appending other digits to digits_int
+		
+		int pos = 0;
+		int leadZero_occur = 0;
+		int leadZero_pos = 0;
+		
+		//Calculating the number of leading zeros
+		for(int i=0; i<valc.length; i++) {
+			if(valc.length!= 1 && valc[0]=='0' && i!= valc.length-1 || valc.length!= 1 && valc[1]=='0' && i!= valc.length-1 && valc[0] == '-'){ //Checking for sign and leading zeros
+				if(valc[i]=='0' && valc[i+1]!='0') {
+					leadZero_occur = 1;
+					leadZero_pos = i;
+					break;
+				}
+			}
+		}
+		
+		if (leadZero_occur==1 && valc[0]!='-') {  //Counting leading zeros if the first sign is not negative
+			leadZero_occur = leadZero_pos+1;
+		}
+		
+		if (leadZero_occur==1 && valc[0]=='-') { //Counting leading zeros if the sign is negative
+			leadZero_occur = leadZero_pos;
+		}
+		
+		//Removing all the leading zeros
+		if(leadZero_occur>=1) {
+			digits_int = new int[valc.length - leadZero_occur];
+			for (int i=leadZero_occur; i<valc.length; i++) {
+				digits_int[pos] = Integer.parseInt(String.valueOf(valc[i]));
+				pos++;
+			}
+		}
+		
+		//In case of no leading zeros appending everything to the array
+		else if(all_zero!=1) {
+			int len = valc.length;
+			if(ind==1) {
+				len = valc.length-1;
+			}
+			
+			digits_int = new int[len];
+			for (int i=ind; i<valc.length; i++) {
+				digits_int[pos] = Integer.parseInt(String.valueOf(valc[i]));
+				pos++;
+			}
+		}
+		
+	}
+	
+	public HugeInteger(int n) throws IllegalArgumentException{ //Ask if this constructor can generate negative numbers as well
+		
+		//Checking if n<=0 and throwing exception
+		if(n<=0) {
+			throw new IllegalArgumentException("n should be above zero");
+		}
+		
+		//sign_int = 1;
+		
+		//sign
+		int sign[] = new int[2];
+		
+		sign[0] = 1;
+		sign[1] = -1;
+		
+		int sign_ind = (int) ((Math.random()*2));
+		
+		sign_int = sign[sign_ind];
+		
+		digits_int = new int[n];
+		
+		digits_int[0] = 1 + (int) ((Math.random()*9)) ; //Making the first digit not equal to zero
+		
+		for(int pos=1; pos<n; pos++) {
+			digits_int[pos] = (int) ((Math.random()*10)); //All other digits can be equal to zero
+		}
+		
+	}
+	
+	public int get_Size() {
+		return this.digits_int.length;
+	}
+	
+	public int get_Sign() {
+		return this.sign_int;
+	}
+	
+	public HugeInteger add(HugeInteger h) {
+		int len = this.get_Size();
+		
+		if(h.get_Size()>this.get_Size()) {
+			len = h.get_Size();
+		}
+		
+		
+		HugeInteger  add_int = new HugeInteger(len+1);
+		
+		
+		int s_check = 1;
+		
+		if(this.get_Sign() == h.get_Sign()) {
+			s_check = this.get_Sign();
+		}
+		
+		if(this.get_Size()>h.get_Size()) {
+			s_check = this.get_Sign();
+		}
+		
+		if(h.get_Size()>this.get_Size()) {
+			s_check = h.get_Sign();
+		}
+		
+		int same = 0;
+		
+		if(h.get_Size()==this.get_Size() && h.get_Sign() != this.get_Sign()) {
+			for(int pos=0; pos<this.get_Size(); pos++) {
+				if(h.digits_int[pos] == this.digits_int[pos]) {
+					same+=1;
+				}
+				
+				if(h.digits_int[pos] > this.digits_int[pos]) {
+					s_check = h.get_Sign();
+					break;
+				}
+				
+				if(h.digits_int[pos] < this.digits_int[pos]) {
+					s_check = this.get_Sign();
+					break;
+				}
+			}
+		}
+		
+		
+		if(same==this.get_Size()) {
+			s_check = 0;
+		}
+
+		add_int.sign_int = s_check; //sign of the add_int
+		
+		if(s_check==0) {
+			HugeInteger zero_add = new HugeInteger("0");
+			zero_add.sign_int = 0;
+			return zero_add;
+		}
+		
+		if(this.get_Size()==1 && this.digits_int[0] == 0) {
+			return h;
+		}
+		
+		if(h.get_Size()==1 && h.digits_int[0] == 0) {
+			return this;
+		}
+		
+		//Addition of two numbers with same sign
+		int carry = 0;
+		int sum = 0;
+		int ind_add = add_int.get_Size()-1;  //starting from back traversing to the front
+		if(this.get_Size() == h.get_Size() && this.get_Sign() == h.get_Sign()) {
+			for(int pos=len-1; pos>=0; pos--) {
+				sum = this.digits_int[pos] + h.digits_int[pos] + carry;
+				
+				add_int.digits_int[ind_add] = sum%10;
+				ind_add--;
+				carry = sum/10;
+			}
+			
+			add_int.digits_int[0] = carry;
+		}
+		
+		if(this.get_Size()>h.get_Size() && this.get_Sign() == h.get_Sign()) {
+			int ind_1 = this.get_Size()-1;
+			for(int pos= h.get_Size()-1; pos>=0; pos--) {
+				sum = this.digits_int[ind_1] + h.digits_int[pos] + carry;
+				
+				add_int.digits_int[ind_add] = sum%10;
+				ind_add--;
+				carry = sum/10;
+				ind_1--;
+			}
+			
+			for(int pos = ind_1; pos>=0; pos--) {
+				sum = this.digits_int[pos] + carry;
+				
+				add_int.digits_int[ind_add] = sum%10;
+				ind_add--;
+				carry = sum/10;
+			}
+			
+			add_int.digits_int[0] = carry;
+		}
+		
+		if(h.get_Size()>this.get_Size() && this.get_Sign() == h.get_Sign()) {
+			int ind_1 = h.get_Size()-1;
+			for(int pos= this.get_Size()-1; pos>=0; pos--) {
+				sum = this.digits_int[pos] + h.digits_int[ind_1] + carry;
+				
+				add_int.digits_int[ind_add] = sum%10;
+				ind_add--;
+				carry = sum/10;
+				ind_1--;
+			}
+			
+			for(int pos = ind_1; pos>=0; pos--) {
+				sum = h.digits_int[pos] + carry;
+				
+				add_int.digits_int[ind_add] = sum%10;
+				ind_add--;
+				carry = sum/10;
+			}
+			
+			add_int.digits_int[0] = carry;
+		}
+		
+		//Adding positive and negative numbers
+		int borrow =0;
+
+		if(this.get_Size() == h.get_Size() && this.get_Sign() != h.get_Sign()) {
+			for(int pos=len-1; pos>=0; pos--) {
+				sum = this.digits_int[pos] - h.digits_int[pos]-borrow;
+				
+				if(sum>=0) {
+					add_int.digits_int[ind_add] = sum;
+					borrow=0;
+				}
+				
+				else {
+					if(pos==0) {
+						add_int.digits_int[ind_add] = Math.abs(sum);
+					}
+					
+					else {
+						add_int.digits_int[ind_add] = sum+10;
+						borrow=1;
+					}	
+				}
+				ind_add--;
+			}
+			add_int.digits_int[0] = 0;
+		}
+		
+		if(this.get_Size()>h.get_Size() && this.get_Sign() != h.get_Sign()) {
+			int ind_1 = this.get_Size()-1;
+			for(int pos= h.get_Size()-1; pos>=0; pos--) {
+				sum = this.digits_int[ind_1] - h.digits_int[pos] - borrow;
+				
+				if(sum>=0) {
+					add_int.digits_int[ind_add] = sum;
+					borrow = 0;
+				}
+				
+				else {
+					add_int.digits_int[ind_add] = sum + 10;
+					borrow=1;
+				}
+				ind_add--;
+				ind_1--;
+			}
+			
+			for(int pos = ind_1; pos>=0; pos--) {
+				if(borrow == 1){
+					sum = this.digits_int[pos] - borrow;
+					if(sum>=0) {
+						add_int.digits_int[ind_add] = sum;
+						borrow = 0;
+					}
+					
+					else {
+						add_int.digits_int[ind_add] = sum + 10;
+						borrow=1;
+					}
+				}
+				else{
+					add_int.digits_int[ind_add] = this.digits_int[pos] ;
+				}
+		
+				ind_add--;
+			}
+			
+			add_int.digits_int[0] = 0;
+		}
+		
+		if(h.get_Size()>this.get_Size() && this.get_Sign() != h.get_Sign()) {
+			int ind_1 = h.get_Size()-1;
+			for(int pos= this.get_Size()-1; pos>=0; pos--) {
+				sum = h.digits_int[ind_1] - this.digits_int[pos] - borrow;
+				
+				if(sum>=0) {
+					add_int.digits_int[ind_add] = sum;
+					borrow =0;
+				}
+				
+				else {
+					add_int.digits_int[ind_add] = sum+10;
+					borrow=1;
+				}
+				ind_add--;
+				ind_1--;
+			}
+			
+			for(int pos = ind_1; pos>=0; pos--) {
+				if(borrow == 1){
+					sum = h.digits_int[pos] - borrow;
+					if(sum>=0) {
+						add_int.digits_int[ind_add] = sum;
+						borrow = 0;
+					}
+					
+					else {
+						add_int.digits_int[ind_add] = sum + 10;
+						borrow=1;
+					}
+				}
+				
+				else{
+					add_int.digits_int[ind_add] = h.digits_int[pos] ;
+				}
+
+				ind_add--;
+			}
+			
+			add_int.digits_int[0] = 0;
+		}
+		
+	
+		//Removing leading zeros from the resulting HugeInteger
+		if(add_int.digits_int[0] ==  0 && add_int.get_Size()!=1) {  
+			int init_len = 0;
+			
+			int lead_zero=0;
+			
+			for(int i=0; i<add_int.get_Size(); i++) {
+				if(i!=add_int.get_Size()-1 && add_int.digits_int[i+1]!=0 && add_int.digits_int[i]==0) {
+					lead_zero=i;
+					break;
+				}
+			}
+			
+			
+			for (int ind=lead_zero+1; ind<add_int.get_Size(); ind++) {
+				init_len += 1;
+			}
+			
+			HugeInteger add_lead_int = new HugeInteger(init_len);
+			add_lead_int.sign_int = add_int.get_Sign();
+			
+			int pos_new = 0;
+			
+			
+			for(int pos=lead_zero+1; pos<add_int.get_Size(); pos++) {
+				add_lead_int.digits_int[pos_new] = add_int.digits_int[pos];
+				pos_new++;
+			}
+			
+			return add_lead_int;
+		}
+		
+		return add_int;
+	}
+	
+	public HugeInteger subtract(HugeInteger h) {
+		HugeInteger h_rev = new HugeInteger(h.toString()); //changes the sign of h
+		HugeInteger sub_int;
+		h_rev.sign_int = 0;
+		
+		if (h.get_Sign()==1) {
+			h_rev.sign_int = -1;
+			sub_int = this.add(h_rev);
+			return sub_int;
+		}
+		
+		if (h.get_Sign()==-1) {
+			h_rev.sign_int = 1;
+			sub_int = this.add(h_rev);
+			return sub_int;
+		}
+		
+		
+		return this;
+		
+	}
+	
+	private HugeInteger shift (int n) {
+		if (this.sign_int == 0) {
+			HugeInteger s = new HugeInteger("0");
+			s.sign_int = 0;
+            return s;
+        }
+        if (n > 0) {
+            // Copy the digits array to a bigger one, starting at 0 to emulate the shift
+            int[] result = new int[this.digits_int.length + n];
+            System.arraycopy(this.digits_int, 0, result, 0, this.digits_int.length);
+            HugeInteger s_l = new HugeInteger(((Arrays.toString(result)).replaceAll("\\p{P}", "")).replaceAll("\\W", ""));
+            s_l.sign_int = this.sign_int;
+            return s_l;
+        } else if (n == 0) {
+            return this;
+        } else {
+            throw new IllegalArgumentException("n cannot be negative");
+        }
+	}
+	
+	public HugeInteger multiply (HugeInteger h) {
+		int xLen = this.digits_int.length;
+		int yLen = h.digits_int.length;
+		//System.out.println(xLen);
+		//System.out.println(yLen);
+		
+		int mid = (Math.max(xLen, yLen)+1)/2;
+		//System.out.println(mid);
+		
+		if(xLen==1 && yLen==1) {  //Need to change this condition
+			HugeInteger r = new HugeInteger(String.valueOf( this.digits_int[0]*h.digits_int[0]));
+			if(this.sign_int!=0 && h.sign_int!=0 && this.sign_int!=h.sign_int) {
+				r.sign_int = -1;
+			}
+			return r;
+		}
+		
+		String x_up = "";
+		String x_low = "";
+		String y_up= "";
+		String y_low = "";
+		
+		int equal_lx = 0;
+		int equal_ly = 0;
+		
+		int m =0;
+		
+		if(xLen>yLen) {
+			equal_ly = xLen-yLen;
+			m=1;
+		}
+		
+		if(yLen>xLen) {
+			equal_lx = yLen-xLen;
+			m=2;
+		}
+		
+		int x[] = new int[equal_lx+xLen]; //making new array if both numbers length don't match
+		int y[] = new int[equal_ly+yLen];
+		
+		int x_pos=0;
+		for(int pos=0; pos<equal_lx; pos++) {
+			x[pos] = 0;
+			x_pos++;
+		}
+		
+		System.arraycopy(this.digits_int, 0, x, x_pos, xLen);
+		
+		int y_pos=0;
+		for(int pos=0; pos<equal_ly; pos++) {
+			y[pos] = 0;
+			y_pos++;
+		}
+		
+		System.arraycopy(h.digits_int, 0, y, y_pos, yLen);
+		
+		int n=0;
+		
+		if(xLen %2 == 1 && m==1) {
+			x_up += "0";  //making it even number
+			y_up += "0";
+			n = 1;
+		}
+		
+		if(yLen %2 == 1 && m==2) {
+			x_up += "0";
+			y_up += "0";
+			n = 1;
+		}
+		
+		if(xLen%2 == 1 && yLen%2 == 1 && m==0) {
+			x_up += "0";
+			y_up += "0";
+			n = 1;
+		}
+		
+		x_up += ((Arrays.toString(Arrays.copyOfRange(x, 0, mid-n))).replaceAll("\\p{P}", "")).replaceAll("\\W", "");
+		//System.out.print(" " + x_up);
+		x_low += ((Arrays.toString(Arrays.copyOfRange(x, mid-n, x.length))).replaceAll("\\p{P}", "")).replaceAll("\\W", "");
+		//System.out.print(" " + x_low);
+		y_up += ((Arrays.toString(Arrays.copyOfRange(y, 0, mid-n))).replaceAll("\\p{P}", "")).replaceAll("\\W", "");
+		//System.out.print(" " + y_up);
+		y_low += ((Arrays.toString(Arrays.copyOfRange(y, mid-n, y.length))).replaceAll("\\p{P}", "")).replaceAll("\\W", "");
+		//System.out.print(" " + y_low);
+		
+		String one_init = ""; 
+		
+		for (int i=0; i<mid; i++) {
+			one_init+="1";
+		}
+		
+		HugeInteger xUp = new HugeInteger(one_init);
+		//System.out.println(xUp.toString());
+		HugeInteger xLow = new HugeInteger(one_init);
+		//System.out.println(xLow.toString());
+		HugeInteger yUp = new HugeInteger(one_init);
+		//System.out.println(yUp.toString());
+		HugeInteger yLow = new HugeInteger(one_init);
+		//System.out.println(yLow.toString());
+		
+		for(int i=0; i<xUp.get_Size(); i++) {
+			xUp.digits_int[i] = Character.getNumericValue(x_up.charAt(i));
+		}
+		//System.out.print(" " + xUp.toString());
+		
+		for(int i=0; i<xLow.get_Size(); i++) {
+			xLow.digits_int[i] = Character.getNumericValue(x_low.charAt(i));
+		}
+		//System.out.print(" " + xLow.toString());
+		
+		for(int i=0; i<yUp.get_Size(); i++) {
+			yUp.digits_int[i] = Character.getNumericValue(y_up.charAt(i));
+		}
+		//System.out.print(" " + yUp.toString());
+		
+		for(int i=0; i<yLow.get_Size(); i++) {
+			yLow.digits_int[i] = Character.getNumericValue(y_low.charAt(i));
+		}
+		//System.out.print(" " + yLow.toString());
+		//System.out.print(" " + y_low.length());
+		
+		HugeInteger s1 = xLow.multiply(yLow);
+		//System.out.print(" " + s1.toString());
+		HugeInteger s2 = xUp.multiply(yUp);
+		//System.out.print(" " + s2.toString());
+		HugeInteger s3_1 = xLow.add(xUp);
+		//System.out.print(" " + s3_1.toString());
+		HugeInteger s3_2 = yLow.add(yUp);
+		//System.out.print(" " + s3_2.toString());
+		HugeInteger s3  = s3_1.multiply(s3_2);
+		//System.out.print(" " + s3.toString());
+		
+		//System.out.print(" ");
+		
+		HugeInteger res = s2.shift(mid).add(s3.subtract(s2).subtract(s1)).shift(mid).add(s1);
+		//System.out.print(res.toString());
+		
+		//System.out.println(" ");
+		
+		if (this.sign_int!=0 && h.sign_int!=0 && this.sign_int!= h.sign_int) {
+			HugeInteger r = new HugeInteger(((Arrays.toString(res.digits_int)).replaceAll("\\p{P}", "")).replaceAll("\\W", ""));
+			r.sign_int = -1;
+            return r;
+        } else {
+            return res;
+        }
+	}
+	
+	public int compareTo (HugeInteger h) {
+		int compare = 1;
+		
+		HugeInteger comp = this.subtract(h);
+		if(comp.get_Sign()==0) {
+			compare=0;
+		}
+		
+		if(comp.get_Sign()==-1) {
+			compare=-1;
+		}
+		
+		return compare;
+	}
+	
+	public String toString() {
+		String huge_int = String.valueOf(sign_int*digits_int[0]);
+		for(int pos=1; pos<digits_int.length;pos++) {
+			huge_int += String.valueOf(digits_int[pos]);
+		}
+		return huge_int;
+	}
+
+}

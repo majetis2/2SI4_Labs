@@ -1,0 +1,216 @@
+public class HashTableLin {
+	private Integer[] table;
+    private int size;
+    private int num_keys;
+    public int max_keys;
+    private double max_load;
+    
+    //Constructor
+    //Space Complexity for all of the methods are O(size of hash table)- maximum amount of memory at any time
+    public HashTableLin(int maxNum, double load) {
+    	num_keys = 0;
+    	max_keys = maxNum;
+    	max_load = load;
+    	size = (int) (maxNum/load);
+    	if (isPrime(size)==false) {
+    		size = nextPrime(size);
+    	}
+    	table = new Integer[size];
+    }
+    
+    //Checks whether a number is a prime  number or not
+    private boolean isPrime(int n) {
+    	boolean check_prime = true;
+    	for (int i = 2; i <= n / 2; ++i) {
+    		if (n%i==0) {
+    			check_prime=false;
+    			break;
+    		}
+    	}
+    	return check_prime;
+    }
+    
+    //Find the next prime number after n using recursion
+    private int nextPrime(int n) {
+    	while (true) {
+            if (isPrime(n)) {
+                return n;
+            }
+            n++;
+        }
+    }
+    
+    //Time Complexity : Best and Average cases O(1)-without collisions and rehash only operates after n/2 operations, n->size of HT 
+    //Worst Case O(n) - when all values are hashed to same index
+    //Inserts a new key into the hash map
+    public void insert(int n) {
+    	
+    	if((num_keys + 1.0)/size > max_load) {  //Checks whether there is a sufficient space in hash table
+			rehash();    //Uses rehash
+		}
+    	
+    	//Checks if the number is present in the present
+    	//Inserts a number if it is not present in the hash table
+    	if(num_keys==0 || isIn(n)==false) {  
+    		
+    			int pos = hash_fun(n); //Index where the value needs to be inserted
+    			int ind = pos; //Assigning a dummy index
+    			
+    			//Using a do while loop to insert the value
+    			do {
+    				if(table[ind]==null) { //Checks if table[ind] is null and then inserts the number into that index
+    					table[ind] = n;
+    					num_keys++; //Incrementing num_keys
+    					break;  //breaking from the loop
+    				}
+    				
+    				/*if(table[ind]==n) {
+    					table[ind] = n;
+    					return;
+    				}*/
+    				
+    				ind = (ind >= (size-1))? 0 : ind+1; //Incrementing ind (ind+1)%size
+    			}
+    			
+    			while (ind!=pos); //Incrementing the while loop until the dummy ind equals to ind
+    		}
+    	
+    }
+    
+    //Calculates the index where n needs to be inserted
+    private int hash_fun(int n) {
+    	return n%size;
+    }
+    
+    //Time Complexity: O(n) - n time insertions - size of the hash map
+    //Rehash performs rehashing if the num_keys exceeds the max_keys
+    private void rehash() {
+    	HashTableLin rehash_tab = new HashTableLin(2*max_keys,max_load); //Creates a new HashTableLiN with twice the size
+    	for(int i=0; i<this.size; i++) {
+    		if(table[i]!=null) {
+    			rehash_tab.insert(table[i]); //Inserts all the numbers into the new hash table
+    		}
+    	}
+    	this.table = rehash_tab.table; //Makes this object's table equal to the new object's table
+    	this.max_keys = rehash_tab.max_keys; //Makes this object's max_keys equal to the new object's max_keys
+    	this.size = rehash_tab.size; //Makes this object's size equal to the new object's size
+    }
+    
+    //Time Complexity : Best and Average cases O(1)-without collisions  
+    //Worst Case O(n) - when all values are hashed to same index
+    //Checks if a number is in the Hash Table
+    public boolean isIn(int n) {
+    	int ind = hash_fun(n);  //Obtaining the index
+
+        for (int i = 0; i < size; i++) {    //Iterating through the table
+            if (table[ind] != null) {
+                if (table[ind] == n) {    //Checking if table[ind] is equal to n when table[ind] is null returning true
+                    return true;
+                }
+
+                ind = (ind >= (size-1))? 0 : ind+1; //Incrementing ind
+            } else {
+                break;  //Breaking from the loop if the table[ind] is null
+            }
+        }
+
+        return false;
+    }
+    
+    //Time Complexity: O(n)
+    //Printing keys of this hash table
+    public void printKeys() {
+    	for(int ind=0; ind<size; ind++) {  //Using a for loop that goes over the contents of hash table
+    		if(table[ind]!=null) {
+    			System.out.print(table[ind] + " "); //All the non null values are printed
+    		}
+    	}
+    	System.out.println();
+    }
+   
+   //Time Complexity: O(n)
+   //Printing keys and Indexes of this hash table
+    public void printKeysAndIndexes() {
+    	for(int ind=0; ind<size; ind++) {
+    		if(table[ind]!=null) {
+    			System.out.print("(" + table[ind] + "," + ind + ")" +  ", ");
+    		}
+    	}
+    	System.out.println();
+    }
+    
+    //Time Complexity : Best and Average cases O(1)-without collisions and rehash only operates after n/2 operations, n->size of HT 
+    //Worst Case O(n) - when all values are hashed to same index
+    //Counting the number of probes required to perform insertion
+    public int insertCount(int n) {
+    	if((num_keys + 1.0)/size > max_load) {
+			rehash();
+		}
+    	
+    	int ind = hash_fun(n);
+        int probe = 0;
+
+        for (int i = 0; i < size ; i++) {
+            if (table[ind] != null) {
+                if (table[ind] == n) {
+                    return (probe+1)%size;
+                }
+                probe++;
+                ind = (ind >= (size-1))? 0 : ind+1;
+            } else {
+                break;
+            }
+        }
+
+        num_keys++;
+        table[ind] = n;
+		return (probe+1)%size;
+			
+    }
+    
+    //Time Complexity : Best and Average cases O(1)-without collisions  
+    //Worst Case O(n) - when all values are hashed to same index
+    //Counting the number of unsuccessful searches 
+    public int searchCount(int n) {
+        if (num_keys == 0){
+            return 0;
+        }
+        
+        int ind = hash_fun(n);
+        int probes_search = 0;
+
+        for (int i = ind; i < size; i++) {
+        	probes_search++;
+            if (table[ind]!=null && table[ind]==n){ //Returning probes_search if the n is in hash map
+                return probes_search;
+            }
+            
+            if (table[ind] == null){ //else returning probes_search
+                return probes_search; 
+            }
+            
+            ind = (ind >= (size-1))? 0 : ind+1; //Incrementing ind
+        }
+        return probes_search;
+    }
+    
+    //Getter method for size
+    public int getTableSize() {
+        return size;
+    }
+    
+    //Getter method for num_keys
+    public int getNumKeys() {
+        return num_keys;
+    }
+
+    //Getter method for max_load
+    public double getMaxLoadFactor() {
+        return max_load;
+    }
+
+    //Getter method for getLoadFactor
+    public double getLoadFactor() {
+        return (double) (num_keys / table.length);
+    }
+}

@@ -1,0 +1,143 @@
+public class BSTTest {
+	public static void main(String[] args) {
+		int[] d1 = {0, 1, 2, 3, 9};
+        int[] d2 = {6, 4, 60, 7, 8, 6, 85, 3, 2, 4, 6, 5, 89, 8, 9, 13, 2, 1, 2, 4, 4, 7, 3498, 8, 79, 6, 4, 13, 0};
+        int[] d3 = {234, 46, 23, 238, 656};
+        int[] d4 = {234, 46, 23, 238, 656};
+        BSTSet a,b,c,d;
+
+        System.out.println("Test constructor 1");
+        a = new BSTSet();
+        a.printBSTSet();
+        System.out.println("\n");
+
+        b = new BSTSet(d1); 
+        b.printBSTSet();
+
+        c = new BSTSet(d2);
+        c.printBSTSet();
+        System.out.println("\n");
+
+        System.out.println("Test isIn");
+        System.out.println("Expected value: false, Actual value: " + new BSTSet().isIn(20)); // root is null
+        System.out.println("Expected value: false, Actual value: " + b.isIn(20)); // not in the BST
+        System.out.println("Expected value: true, Actual value: " + b.isIn(0)); // in the BST
+        System.out.println("\n");
+
+        System.out.println("Test add");
+        b = new BSTSet();
+        b.add(0); 
+        b.printBSTSet();
+
+        b = new BSTSet(d1);
+        b.add(0); // already in the list
+        b.printBSTSet();
+
+        b = new BSTSet(d1);
+        b.add(20); // not in the list
+        b.printBSTSet();
+        System.out.println("\n");
+
+        System.out.println("Test remove");
+        b = new BSTSet();
+        System.out.println("Expected value: false, Actual value: " + b.remove(0)); // empty BST
+        b.printBSTSet();
+
+        b = new BSTSet(d1);
+        System.out.println("Expected value: true, Actual value: " + b.remove(3)); // root node
+        b.printBSTSet();
+
+        b = new BSTSet(d1);
+        System.out.println("Expected value: true, Actual value: " + b.remove(1)); // is in the list
+        b.printBSTSet();
+
+        b = new BSTSet(d1);
+        System.out.println("Expected value: false, Actual value: " + b.remove(20)); // is not in the list
+        b.printBSTSet();
+        System.out.println("\n");
+
+        System.out.println("Test union");
+        a = new BSTSet(); // null set union with non-null
+        b = new BSTSet(d3);
+        a.union(b).printBSTSet();
+
+        a = new BSTSet(d1); // non-null union with null
+        b = new BSTSet();
+        a.union(b).printBSTSet();
+
+        a = new BSTSet(d1); // common elements
+        b = new BSTSet(d1);
+        a.union(b).printBSTSet();
+
+        a = new BSTSet(d1); // no common elements
+        b = new BSTSet(d3);
+        a.union(b).printBSTSet();
+        System.out.println("\n");
+
+        System.out.println("Test intersection");
+        a = new BSTSet(); // null set intersection with non-null
+        b = new BSTSet(d3);
+        a.intersection(b).printBSTSet();
+
+        a = new BSTSet(d1); // non-null intersection with null
+        b = new BSTSet();
+        a.intersection(b).printBSTSet();
+
+        a = new BSTSet(d1); // common elements
+        b = new BSTSet(d1);
+        a.intersection(b).printBSTSet();
+
+        a = new BSTSet(d1); // no common elements
+        b = new BSTSet(d3);
+        a.intersection(b).printBSTSet();
+        System.out.println("\n");
+
+        System.out.println("Test difference");
+        a = new BSTSet(); // empty set
+        b = new BSTSet(d1);
+        a.difference(b).printBSTSet(); // difference of empty set and non-empty set
+
+        a = new BSTSet(); // empty set
+        b = new BSTSet(d1);
+        b.difference(a).printBSTSet(); // difference of non-empty set and empty set
+
+        a = new BSTSet(d1);
+        b = new BSTSet(d2);
+        a.difference(b).printBSTSet(); // common elements
+
+        a = new BSTSet(d1);
+        b = new BSTSet(d2);
+        b.difference(a).printBSTSet(); // common elements, other way
+
+        a = new BSTSet(d1);
+        b = new BSTSet(d3);
+        a.difference(b).printBSTSet(); // no common elements
+
+        a = new BSTSet(d1);
+        b = new BSTSet(d3);
+        b.difference(a).printBSTSet(); // no common elements, other way
+        System.out.println("\n");
+
+        System.out.println("Test size and height");
+        b = new BSTSet();
+        System.out.println("Expected size value: 0, Actual value: " + b.size());
+        System.out.println("Expected height value: -1, Actual value: " + b.height());
+
+        b = new BSTSet(d1);
+        System.out.println("Expected size value: 5, Actual value: " + b.size());
+        System.out.println("Expected height value: 2, Actual value: " + b.height());
+        System.out.println("\n");
+
+        System.out.println("Test printNonRec");
+        b = new BSTSet(); // empty set
+        b.printNonRec();
+
+        b = new BSTSet(d1);
+        b.printNonRec(); // print in increasing order
+        System.out.println("\n");
+        
+        d = new BSTSet(d4);  //level order testing
+        d.add(40);
+        d.difference(a).printLevelOrder();
+	}
+}

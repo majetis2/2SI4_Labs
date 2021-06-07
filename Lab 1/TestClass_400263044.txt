@@ -1,0 +1,138 @@
+public class Test {
+
+	//Need to test different cases
+	
+	public static void main(String[] args) 
+	{
+		 HugeInteger test_1, test_2, test_3;
+
+	        // First Constructor Test Cases
+	        try {
+	            test_1 = new HugeInteger("+");
+	        } catch (Exception e) {
+	            System.out.println("String constructor throws NullPointerException\n");
+	        }
+
+	        try {
+	            test_1 = new HugeInteger("");
+	        } catch (Exception e) {
+	            System.out.println("String constructor throws IllegalArgumentException\n");
+	        }
+
+	        try {
+	            test_1 = new HugeInteger("--");
+	        } catch (Exception e) {
+	            System.out.println("String constructor throws IllegalArgumentsException\n");
+	        }
+
+	        try {
+	            test_1 = new HugeInteger("+");
+	        } catch (Exception e) {
+	            System.out.println("String constructor throws IllegalArgumentsException\n");
+	        }
+
+	        
+	        test_1 = new HugeInteger("-001");
+	        if(Integer.parseInt(test_1.toString())==1) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+	        
+	        test_1 = new HugeInteger("000000");
+	        if(Integer.parseInt(test_1.toString())==0) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+		        
+
+	        try {
+	            test_1 = new HugeInteger("3523534-34568374");
+	        } catch (Exception e) {
+	            System.out.println("String constructor throws for IllegalArgumentsException \n");
+	        }
+
+	        test_1 = new HugeInteger("-537969054");
+	        if(Integer.parseInt(test_1.toString())==-537969054) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+	        
+
+	        // Second Constructor Test Cases
+	        try {
+	            test_1 = new HugeInteger(0);
+	        } catch (Exception e) {
+	            System.out.println("Number constructor throws exception for IllegalArgumentsException\n");
+	        }
+
+	        test_1 = new HugeInteger(20);
+	        if(test_1.get_Size()==20) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+	        
+	        try {
+	            test_1 = new HugeInteger(-1);
+	        } catch (Exception e) {
+	            System.out.println("Number constructor throws exception for IllegaArgumentsException\n");
+	        }
+	        
+	        // Addition Test Cases
+	        test_1 = new HugeInteger("1407437");
+	        test_2 = new HugeInteger("1398493");
+	        if(Integer.valueOf ((test_1.add(test_2)).toString()) == 2805930) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+	        
+	        test_1 = new HugeInteger("1407437");
+	        test_2 = new HugeInteger("9498493");
+	        if(Integer.valueOf ((test_1.add(test_2)).toString()) == 10905930) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+	        
+	        test_1 = new HugeInteger("1483");
+	        test_2 = new HugeInteger("10");
+	        if(Integer.valueOf ((test_1.add(test_2)).toString()) == 1493) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+	        
+	        test_1 = new HugeInteger("37");
+	        test_2 = new HugeInteger("38773");
+	        if(Integer.valueOf ((test_1.add(test_2)).toString()) == 38810) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+	        
+	        test_1 = new HugeInteger("37");
+	        test_2 = new HugeInteger("38773");
+	        String s = test_1.add(test_2).toString();
+	        test_3 = new HugeInteger(s);
+	        if(Integer.valueOf ((test_3.add(test_1)).toString()) == 38847) {
+	        	System.out.println("PASS\n");
+	        }
+	        else {
+	        	System.out.println("FAIL\n");
+	        }
+	       
+	}
+
+}

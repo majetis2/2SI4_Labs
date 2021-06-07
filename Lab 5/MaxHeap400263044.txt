@@ -1,0 +1,128 @@
+//Lab Partner: Namya Mehan
+public class MaxHeap {
+    private Integer[] max_heap;
+    private int array_size;
+    private int heap_size;
+    
+    // Time Complexity: O(1) creates empty heap with a given maximum size
+    // Space Complexity: O(n), where n = maximum size of the array 
+    public MaxHeap(int size) {
+        array_size = size;
+        max_heap= new Integer[array_size+1];
+        heap_size=0;
+    }
+    
+    // Time Complexity: Worst case: O(nlogn), Avergae case: O(n) 
+ 	// Space Complexity: Average case: O(n) 
+    public MaxHeap(Integer[] someArray){
+        max_heap = new Integer[someArray.length];
+        array_size=someArray.length;
+        heap_size=0;
+        for(int i=0; i<array_size; i++) {
+        	insert(someArray[i]);
+        }
+    }
+
+    private int parent_ind(int pos) {
+        if(pos==0) {
+            return pos;
+        }
+        return (pos-1)/2;
+    }
+    
+    private int left_ind(int pos) {
+        return (pos*2)+1;
+    }
+   
+    private int right_ind(int pos) {
+        return (pos*2)+2;
+    }
+    
+    private void ind_swap(int ind_left,int ind_right){
+    	Integer temp_ind;
+        temp_ind=max_heap[ind_left];
+        max_heap[ind_left]=max_heap[ind_right];
+        max_heap[ind_right]=temp_ind;
+    }
+    
+    // Time Complexity: Worst case: O(logn), Average case: O(1)
+ 	// Space Complexity: O(1)
+    public void insert(int n){ 
+        if (array_size==heap_size){
+        	Integer[] resize_heap = new Integer[array_size *= 2];
+            System.arraycopy(max_heap, 0, resize_heap, 0, heap_size);
+            max_heap = resize_heap;
+        }
+
+        max_heap[heap_size] = n;
+
+        int current_ind = heap_size++;
+        int parent;
+        while (max_heap[current_ind] > max_heap[parent = parent_ind(current_ind)]) {
+            ind_swap(current_ind, parent);
+            current_ind = parent;
+       }
+    }
+
+    // Time Complexity: O(logn)
+ 	// Space Complexity: O(1)
+    private int deleteMax(){
+    	int max_num = max_heap[0];
+        max_heap[0] = max_heap[--heap_size];
+
+        int pos = 0;
+        while (pos < heap_size/2) {
+            int leftChild = left_ind(pos);
+            int rightChild = right_ind(pos);
+
+            if (max_heap[pos] < max_heap[leftChild] || max_heap[pos] < max_heap[rightChild]) {
+                if (max_heap[rightChild] > max_heap[leftChild]) {
+                	ind_swap(pos, rightChild);
+                    pos = rightChild;
+                } else {
+                	ind_swap(pos, leftChild);
+                    pos = leftChild;
+                }
+            } else {
+                break;
+            }
+        }
+
+        return max_num;
+    }
+    
+    //Time Complexity: O(n) 
+  	//Space Complexity: O(n)
+    public String toString(){
+    	String result = "";
+		for(int ind=0; ind<heap_size; ind++) {
+			if(max_heap[ind]!=null) {
+				result += String.valueOf(max_heap[ind]) + ",";
+			}
+		}
+		return result;
+    }
+    
+    //Time Complexity: O(nlogn) 
+  	//Space Complexity: O(n)
+    public static void heapsort(Integer[] arrayToSort){
+        MaxHeap sort_heap = new MaxHeap(arrayToSort);
+        for (int i = 0; i < arrayToSort.length; i++) {
+            arrayToSort[i] = sort_heap.deleteMax();
+        }
+    }
+
+    //getter methods
+    public Integer[] getHeap() {
+        return max_heap;
+    }
+
+    public int getSizeArr() {
+        return array_size;
+    }
+
+    public int getSizeHeap() {
+        return heap_size;
+    }
+    
+}

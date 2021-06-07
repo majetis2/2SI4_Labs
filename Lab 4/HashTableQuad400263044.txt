@@ -1,0 +1,189 @@
+public class HashTableQuad {
+	private Integer[] table;
+    private int size;
+    private int num_keys;
+    public int max_keys;
+    private double max_load;
+    
+    //Constructor
+    //Space Complexity for all of the methods are O(size of hash table)- maximum amount of memory at any time
+    public HashTableQuad(int maxNum, double load) {
+    	num_keys = 0;
+    	max_keys = maxNum;
+    	max_load = load;
+    	size = (int) (maxNum/load);
+    	if (isPrime(size)==false) {
+    		size = nextPrime(size);
+    	}
+    	table = new Integer[size];
+    }
+    
+    //Checks if a number is prime or not
+    private boolean isPrime(int n) {
+    	boolean check_prime = true;
+    	for (int i = 2; i <= n / 2; ++i) {
+    		if (n%i==0) {
+    			check_prime=false;
+    			break;
+    		}
+    	}
+    	return check_prime;
+    }
+    
+    //Finds the next prime number
+    private int nextPrime(int n) {
+    	while (true) {
+            if (isPrime(n)) {
+                return n;
+            }
+            n++;
+        }
+    }
+    
+    //Time Complexity : Best and Average cases O(1)-without collisions and rehash only operates after n/2 operations, n->size of HT 
+    //Worst Case O(n) - when all values are hashed to same index
+    //Inserts a new key into the hash map
+    public void insert(int n) {
+    	if(num_keys==0 || isIn(n)==false) {
+ 
+			int pos = hash_fun(n);
+			int ind = pos;
+			int quad_step = 0;
+			
+			do {
+				if(table[ind]==null) {
+					table[ind] = n;
+					num_keys++;
+					break;
+				}
+				
+				if(table[ind]==n) {
+					table[ind] = n;
+					return;
+				}
+				else {
+					quad_step++;
+					ind = (ind+quad_step*quad_step)%size;
+				}
+			}
+			
+			while (ind!=pos);
+		}
+	
+    	if((num_keys+1.0)/size > max_load) {
+    		rehash();
+    	}
+    }
+    
+    //Calculates the index where n needs to be inserted
+    private int hash_fun(int n) {
+    	return n%size;
+    }
+    
+    //Time Complexity: O(n) - n time insertions - size of the hash map
+    //Rehash performs rehashing if the num_keys exceeds the max_keys
+    private void rehash() {
+    	HashTableQuad rehash_tab = new HashTableQuad(2*max_keys,max_load);
+    	for(int i=0; i<size; i++) {
+    		if(table[i]!=null) {
+    			rehash_tab.insert(table[i]);
+    		}
+    	}
+    	this.table = rehash_tab.table;
+    	this.size = rehash_tab.size;
+    }
+    
+    //Time Complexity : Best and Average cases O(1)-without collisions  
+    //Worst Case O(n) - when all values are hashed to same index
+    //Checks if a number is in the Hash Table
+    public boolean isIn(int n) {
+    	int ind = hash_fun(n);
+    	int quad_step=0;
+
+        for (int i = 0; i < size; i++) {
+            if (table[ind] != null) {
+                if (table[ind] == n) {
+                    return true;
+                }
+                
+                quad_step++;
+                ind = (ind+quad_step*quad_step)%size;
+            } else {
+                break;
+            }
+        }
+
+        return false;
+    }
+     
+    //Time Complexity: O(n)
+    //Printing keys of this hash table
+    public void printKeys() {
+    	for(int ind=0; ind<size; ind++) {
+    		if(table[ind]!=null) {
+    			System.out.print(table[ind] + " ");
+    		}
+    	}
+    	System.out.println();
+    }
+    
+    //Time Complexity: O(n)
+    //Printing keys and Indexes of this hash table
+    public void printKeysAndIndexes() {
+    	for(int ind=0; ind<size; ind++) {
+    		if(table[ind]!=null) {
+    			System.out.print("(" + table[ind] + "," + ind + ")" +  ", ");
+    		}
+    	}
+    	System.out.println();
+    }
+    
+    //Time Complexity : Best and Average cases O(1)-without collisions and rehash only operates after n/2 operations, n->size of HT 
+    //Worst Case O(n) - when all values are hashed to same index
+    //Inserts a new key into the hash map
+    public int insertCount(int n) {
+    	int ind = hash_fun(n);
+        int quad_step=0;
+
+        for (int i = 0; i < size ; i++) {
+            if (table[ind] != null) {
+                if (table[ind] == n) {
+                    return quad_step+1;
+                }
+      
+                quad_step++;
+                ind =  (ind+quad_step*quad_step)%size;
+            } else {
+                break;
+            }
+        }
+
+        num_keys++;
+        table[ind] = n;
+		
+		if((num_keys+1.0)/size > max_load) {
+			rehash();
+		}
+		return quad_step+1;
+    }
+    
+    //Getter method for size
+    public int getTableSize() {
+        return size;
+    }
+
+    //Getter method for num_keys
+    public int getNumKeys() {
+        return num_keys;
+    }
+
+    //Getter method for max_load
+    public double getMaxLoadFactor() {
+        return max_load;
+    }
+
+    //Getter method for getLoadFactor
+    public double getLoadFactor() {
+        return (double) (num_keys / table.length);
+    }
+}
